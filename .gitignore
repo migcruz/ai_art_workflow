@@ -1,0 +1,17 @@
+# Local environment overrides
+.env
+
+# Model files and generated outputs (can be very large)
+data/models/
+data/output/
+
+# Custom nodes are installed at runtime via ComfyUI-Manager
+data/custom_nodes/
+
+# User workflows and settings — remove this line if you want to track workflows
+data/user/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
