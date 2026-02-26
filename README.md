@@ -61,6 +61,12 @@ ai_art_workflow/
 ├── docker-compose.yml         # Service, ports, volumes, GPU config
 ├── .env                       # Port and GPU device overrides
 ├── extra_model_paths.yaml     # Maps model subdirectories for ComfyUI
+├── nodes.toml                 # Custom nodes to install at startup
+├── models.toml                # Models to download on demand
+├── scripts/
+│   ├── entrypoint.sh          # Container entrypoint — runs install_nodes.py then ComfyUI
+│   ├── install_nodes.py       # Clones nodes from nodes.toml at startup
+│   └── download_models.py     # Downloads models from models.toml (run manually)
 └── data/                      # Persisted data (survives container rebuilds)
     ├── models/
     │   ├── checkpoints/       # Stable Diffusion / Flux checkpoints
@@ -71,7 +77,7 @@ ai_art_workflow/
     │   ├── diffusion_models/
     │   ├── embeddings/
     │   └── upscale_models/
-    ├── custom_nodes/          # ComfyUI-Manager installed nodes
+    ├── custom_nodes/          # Cloned by install_nodes.py at startup
     ├── output/                # Generated images
     └── user/                  # Workflows and settings
 ```
@@ -85,9 +91,44 @@ Edit [.env](.env) to change defaults:
 | `COMFYUI_PORT` | `8188` | Host port ComfyUI is served on |
 | `CUDA_VISIBLE_DEVICES` | `0` | Which GPU to use (0-indexed) |
 
+## Adding Custom Nodes
+
+Add a `[[node]]` block to [nodes.toml](nodes.toml):
+
+```toml
+[[node]]
+url = "https://github.com/ltdrdata/ComfyUI-Manager"
+description = "Node manager UI"
+```
+
+Nodes are cloned automatically the next time the container starts. If the container is already running, restart it:
+
+```bash
+docker compose restart
+```
+
 ## Adding Models
 
-Drop model files into the appropriate subdirectory under `data/models/` — they are immediately available to ComfyUI without restarting the container.
+### Option A — drop files manually
+
+Copy model files directly into the appropriate `data/models/` subdirectory. They are available to ComfyUI immediately with no restart needed.
+
+### Option B — use models.toml
+
+Add a `[[model]]` block to [models.toml](models.toml):
+
+```toml
+[[model]]
+url = "https://huggingface.co/.../model.safetensors"
+destination = "checkpoints"
+# filename = "custom_name.safetensors"  # optional, overrides the URL filename
+```
+
+Then run the download script from the project root:
+
+```bash
+python scripts/download_models.py
+```
 
 | Model type | Directory |
 |---|---|
@@ -134,8 +175,28 @@ sequenceDiagram
     Img->>Img: Install system deps (python3.12, libgl1, git...)
     Img->>Img: Create comfy user (uid 1000)
     Img->>Img: git clone Comfy-Org/ComfyUI
+    Img->>Img: Copy scripts/ and nodes.toml
     Img->>Img: pip install torch (cu130)
     Img->>Img: pip install -r requirements.txt
+```
+
+### Startup flow
+
+```mermaid
+sequenceDiagram
+    participant E as entrypoint.sh
+    participant I as install_nodes.py
+    participant N as nodes.toml
+    participant C as ComfyUI
+
+    E->>I: Run install_nodes.py
+    I->>N: Parse [[node]] blocks
+    loop each node
+        I->>I: git clone if not present
+        I->>I: pip install requirements.txt if exists
+    end
+    I-->>E: Done
+    E->>C: Start ComfyUI (--highvram --listen 0.0.0.0)
 ```
 
 ### Runtime flow

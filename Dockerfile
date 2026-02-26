@@ -25,6 +25,9 @@ WORKDIR /app
 RUN git clone https://github.com/Comfy-Org/ComfyUI.git . && \
     chown -R comfy:comfy /app
 
+COPY --chown=comfy:comfy scripts/ /app/scripts/
+RUN chmod +x /app/scripts/*.sh
+
 USER comfy
 
 RUN python3.12 -m venv /app/venv
@@ -38,9 +41,4 @@ RUN /app/venv/bin/pip install -r requirements.txt
 
 EXPOSE 8188
 
-CMD ["/app/venv/bin/python", "main.py", \
-     "--listen", "0.0.0.0", \
-     "--port", "8188", \
-     "--disable-auto-launch", \
-     "--highvram", \
-     "--extra-model-paths-config", "/app/extra_model_paths.yaml"]
+ENTRYPOINT ["/app/scripts/entrypoint.sh"]

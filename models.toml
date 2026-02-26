@@ -1,0 +1,41 @@
+# models.toml — models downloaded via: python scripts/download_models.py
+#
+# Required fields:  url, destination
+# Optional fields:  filename (overrides the name derived from the URL)
+#                   description
+
+# --- SUPIR ---
+
+[[model]]
+url = "https://huggingface.co/Kijai/SUPIR_pruned/resolve/main/SUPIR-v0Q_fp16.safetensors"
+destination = "checkpoints"
+description = "SUPIR model — v0Q (general art / illustration)"
+
+[[model]]
+url = "https://huggingface.co/Kijai/SUPIR_pruned/resolve/main/SUPIR-v0F_fp16.safetensors"
+destination = "checkpoints"
+description = "SUPIR model — v0F (photos / photorealism)"
+
+[[model]]
+url = "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors"
+destination = "checkpoints"
+description = "SDXL base — generative backbone, alternative to Juggernaut XL"
+
+# Juggernaut XL — the SUPIR lightning example workflow expects this in a checkpoints/SDXL/ subfolder.
+# Download from CivitAI (free account required): https://civitai.com/models/133005
+# Save to: data/models/checkpoints/SDXL/juggernautXL_v9Rdphoto2Lightning.safetensors
+
+# Pruned SUPIR has CLIP encoders stripped out; load them separately via DualCLIPLoader.
+# Both upstream files are named model.safetensors, so filename override is required.
+
+[[model]]
+url = "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/text_encoder/model.safetensors"
+destination = "clip"
+filename = "clip_l.safetensors"
+description = "CLIP-L text encoder (required by SUPIR)"
+
+[[model]]
+url = "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/text_encoder_2/model.safetensors"
+destination = "clip"
+filename = "clip_g.safetensors"
+description = "CLIP-G text encoder (required by SUPIR)"

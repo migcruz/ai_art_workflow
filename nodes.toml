@@ -1,0 +1,23 @@
+# nodes.toml — custom nodes installed at container startup
+# Repos are cloned into data/custom_nodes/ on first run.
+# To disable a node, comment out its [[node]] block.
+
+[[node]]
+url = "https://github.com/ltdrdata/ComfyUI-Manager"
+description = "Node manager UI — use to discover and install missing nodes"
+
+[[node]]
+url = "https://github.com/kijai/ComfyUI-SUPIR"
+description = "SUPIR super-resolution upscaling"
+
+[[node]]
+url = "https://github.com/rgthree/rgthree-comfy"
+description = "Provides Image Comparer and other utilities"
+
+[[node]]
+url = "https://github.com/cubiq/ComfyUI_essentials"
+description = "Provides ImageResize+ and other essential nodes"
+
+# [[node]]
+# url = "https://github.com/cubiq/ComfyUI_IPAdapter_plus"
+# description = "IP-Adapter support"

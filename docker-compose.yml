@@ -13,6 +13,7 @@ services:
       - ./data/output:/app/output
       - ./data/user:/app/user
       - ./extra_model_paths.yaml:/app/extra_model_paths.yaml:ro
+      - ./nodes.toml:/app/nodes.toml:ro
 
     environment:
       CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES:-0}
